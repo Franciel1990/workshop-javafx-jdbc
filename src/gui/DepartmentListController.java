@@ -27,12 +27,12 @@ import model.entities.Department;
 import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable {
-	
+
 	private DepartmentService service;
-	
+
 	@FXML
 	private TableView<Department> tableViewDepartment;
-	
+
 	@FXML
 	private TableColumn<Department, Integer> tableColumnId;
 
@@ -41,31 +41,36 @@ public class DepartmentListController implements Initializable {
 
 	@FXML
 	private Button btNew;
-	
+
 	private ObservableList<Department> obsList;
-	
+
 	@FXML
 	private void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
-		createDialogForm("/gui/DepartmentForm.fxml", parentStage);
+		Department obj = new Department();
+		createDialogForm(obj, "/gui/DepartmentForm.fxml", parentStage);
+
 	}
-		
+
 	public void setDepartmentService(DepartmentService service) {
 		this.service = service;
-	}	
-	
+	}
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-	initializeNodes();// para iniciar um componente 
+		initializeNodes();// para iniciar um componente
 	}
 
 	private void initializeNodes() {
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
-		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));// estas duas linhas para iniciar o comportamento das colunas
-		
+		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));// estas duas linhas para iniciar o
+																				// comportamento das colunas
+
 		Stage stage = (Stage) Main.getMainScene().getWindow();
-		tableViewDepartment.prefHeightProperty().bind(stage.heightProperty());//estas duas linha são para puxar a tableView até o final da página
+		tableViewDepartment.prefHeightProperty().bind(stage.heightProperty());// estas duas linha são para puxar a
+																				// tableView até o final da página
 	}
+
 	public void updateTableView() {
 		if (service == null) {
 			throw new IllegalStateException("Service was null");
@@ -73,25 +78,29 @@ public class DepartmentListController implements Initializable {
 		List<Department> list = service.findAll();
 		obsList = FXCollections.observableArrayList(list);
 		tableViewDepartment.setItems(obsList);
-		
+
 	}
-	private void createDialogForm(String absoluteName, Stage parentStage) {
+
+	private void createDialogForm(Department obj, String absoluteName, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
-			
-			Stage dialogStage = new Stage();				// isto foi feito para aparecer a janela para um cadastro
+
+			DepartmentFormController controller = loader.getController();
+			controller.setDepartment(obj);
+			controller.updateFormData();
+
+			Stage dialogStage = new Stage(); // isto foi feito para aparecer a janela para um cadastro
 			dialogStage.setTitle("Enter Department data");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.setResizable(false);
 			dialogStage.initOwner(parentStage);
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
-			
-		}
-		catch(IOException e) {
+
+		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
-			
+
 		}
 	}
 
